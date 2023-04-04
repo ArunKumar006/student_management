@@ -5,9 +5,28 @@ from .serializers import StudentSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 # Create your views here.
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+from django.contrib.auth import get_user_model
+from django.contrib.auth.backends import ModelBackend
 
+UserModel = get_user_model()
+
+class EmailBackend(ModelBackend):
+
+    def authenticate(self, request, email=None, password=None):
+        try:
+            user = UserModel.objects.get(email=email)
+        except UserModel.DoesNotExist:
+            UserModel().set_password(password)
+            return None
+        if user is not None and user.check_password(password):
+            if user.is_active:
+                return user
+        return None
 
 class Students(APIView):
+    @method_decorator(login_required,)
     def get(self,request):
 
         students = Student.objects.values('id','name','candidate_code','programme',
@@ -16,7 +35,7 @@ class Students(APIView):
         context = {'students': students}
 
         return render(request, 'home.html',context)
-    
+    # @method_decorator(login_required, name='login')
     def post(self,request):
         stud_serilizer=StudentSerializer(data=request.data)
         if stud_serilizer.is_valid():
@@ -51,11 +70,6 @@ def add_student_marks(request):
         return Response("Mark already added for student")
     student_obj = Marks(student_id=data.get('id'),internal_mark=data.get('internal_mark'),external_mark=data['external_mark'])
     student_obj.save()
-    students = Student.objects.values('id','name','candidate_code','programme',
-                                            'academic_year','mark__internal_mark',
-                               'mark__external_mark')
-    context = {'students': students}
-
     return Response("success")
 
 @api_view(['POST'])
@@ -90,7 +104,6 @@ def get_stud_details(request,stud_id):
 
     else:
         data = request.POST
-        print(request.POST)
         try:
             student_obj = Student.objects.get(candidate_code=data.get('candidate_code'))
             student_serilizer = StudentSerializer(student_obj,data=request.data,partial=True)
