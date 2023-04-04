@@ -35,7 +35,7 @@ class Students(APIView):
         context = {'students': students}
 
         return render(request, 'home.html',context)
-    # @method_decorator(login_required, name='login')
+    @method_decorator(login_required,)
     def post(self,request):
         stud_serilizer=StudentSerializer(data=request.data)
         if stud_serilizer.is_valid():
