@@ -1,0 +1,44 @@
+  <h1>Student Details</h1>
+  <p>Name: {{ students.name }}</p>
+  <p>Candidate code: {{ students.candidate_code }}</p>
+  <input type="hidden" value="{{'students.id'}}">
+  <hr>
+  <h3>Add a Mark:</h3>
+  <form method="post" id="adddata">
+    {% csrf_token %}
+    <label for="internal_mark">internal mark:</label>
+    <input type="text" name="internal_mark" id="subject">
+    <label for="external_mark">External mark:</label>
+    <input type="text" name="external_mark" id="subject">
+    <input type="hidden" name="id" value="{{students.id}}"">
+
+    <button id="dataadd" type="button">Add</button>
+  </form>
+</script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script> 
+<script src="https://malsup.github.io/jquery.form.js"></script> 
+
+  <script>
+    $(document).ready(function() {
+      $('#dataadd').click(function() {
+        var token = '{{csrf_token}}';
+        console.log($("#adddata").serialize(),"data")
+          $.ajax({
+              type: 'POST',
+              url:  "{% url 'mark-add' %}?format=json",
+              data: $("#adddata").serialize(),
+              dataType: 'json',
+              headers: { "X-CSRFToken": token },
+  
+              success: function(json) {
+                location.reload()
+              }
+          })
+          return false;
+      });
+  });
+  
+  
+    </script>
+  

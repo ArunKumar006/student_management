@@ -78,6 +78,8 @@
   <title>Student Management System</title>
 </head>
 <body>
+  <div id="commmonname">
+
   <h1>Student Management System</h1>
   <hr>
   <h2>{% if student %}Edit Student{% else %}Add Student{% endif %}</h2>
@@ -91,7 +93,7 @@
     <input type="programme" name="programme" value="{% if student %}{{ student.programme }}{% endif %}" required><br><br>
     <label for="academic_year">Acadamic Year:</label>
     <input type="tel" name="academic_year" value="{% if student %}{{ student.academic_year }}{% endif %}" required><br><br>
-    <button type="button" onclick="myFunction()">{% if student %}Save{% else %}Add{% endif %}</button>
+    <button id="buttonid" type="button">{% if student %}Save{% else %}Add{% endif %}</button>
   </form>
   <hr>
   <h2>Student List</h2>
@@ -115,9 +117,9 @@
           <td>{{ student.programme }}</td>
           <td>{{ student.academic_year }}</td>
           <td>
-            <a href="?student_id={{ student.id }}">View</a>
-            <a href="?student_id={{ student.id }}&edit=1">Edit</a>
-            <a onclick="deletefn()">Delete</a>
+            <a href="{% url 'detail-individual' stud_id=student.id %}?format=json">View</a>
+            <a href="{% url 'detail-individual' stud_id=student.id %}?format=json">Edit</a>
+            <a href="{% url 'delete-student' student_id=student.id %}?format=json">Delete</a>
           </td>
         </tr>
       {% empty %}
@@ -128,7 +130,7 @@
     </tbody>
   </table>
   <hr>
-  {% if student %}
+  <!-- {% if student %}
     <h2>Student Details</h2>
     <ul>
       <li>First Name: {{ student.first_name }}</li>
@@ -136,23 +138,52 @@
       <li>Email: {{ student.email }}</li>
       <li>Phone Number: {{ student.phone_number }}</li>
     </ul>
-    <a href="?student_id={{ student.id }}&edit=1">Edit</a>
-    <a href="?student_id={{ student.id }}&delete=1">Delete</a>
+    <a href="?student_id={{ student.id}}">Delete</a>
     <hr>
-  {% endif %}
+  {% endif %} -->
+</div>
+
 </body>
 </html>
 <script>
   function myFunction() {
     document.getElementById("myForm").submit();
-    // window.location.reload()
+    
   }
-  function deletefn()
-  return fetch('', {
-        method: 'POST',
-        body: formData
-    }).then(response => response.json())
+</script>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script> 
+  <script src="https://malsup.github.io/jquery.form.js"></script> 
+  <script>
+  $(document).ready(function() {
+    $('#buttonid').click(function() {
+      var token = '{{csrf_token}}';
+
+        $.ajax({
+            type: 'POST',
+            url: $(this).attr('action'),
+            data: $("#myForm").serialize(),
+            dataType: 'json',
+            headers: { "X-CSRFToken": token },
+
+            success: function(json) {
+              console.log(json)
+              $.ajax({
+                  type: "GET",
+                  url: "{% url 'student-details' %}",
+                  data: json,
+                  success: function (data) {
+                    $("#commmonname").html(data);
+
+                  }
+              });
+
+            }
+        })
+        return false;
+    });
+});
+
 
   </script>
-  
 {% endblock %}

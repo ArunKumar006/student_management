@@ -18,12 +18,14 @@ from django.http import JsonResponse
 
 def login_view(request):
     if request.method == 'POST':
+        print('hhh')
         email = request.POST.get('email')
         password = request.POST.get('password')
 
         user = authenticate(request, email=email, password=password)
-
+        print(user,"user")
         if user is not None:
+            print("hhh")
             login(request, user)
             return render(request, 'home.html')
         else:

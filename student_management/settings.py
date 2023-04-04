@@ -72,7 +72,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'student_management.wsgi.application'
 
-ALLOWED_HOSTS = ["arun06.pythonanywhere.com"]
+ALLOWED_HOSTS = ["arun06.pythonanywhere.com","localhost"]
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
